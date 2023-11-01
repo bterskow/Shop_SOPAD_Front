@@ -81,13 +81,33 @@
                     <td class="text-center">
                       <div v-if="item.title" class="d-flex align-center justify-center">
                         <v-btn class="m-1" @click="updateForm(item)">📝</v-btn>
-                        <v-btn class="m-1" @click="deleteItemFunc(item.title)">
+                        <v-btn class="m-1" @click="trash_alert = true">
                           <v-icon
                             size="large"
                             color="red-darken-2"
                             icon="mdi-delete-circle"
                           ></v-icon>
                         </v-btn>
+                        <v-dialog width="400" v-model="trash_alert">
+                          <v-card>
+                            <v-card-text class="text-center">
+                              Ви впевнені, що бажаєте видалити {{ item.title }}?
+                            </v-card-text>
+
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+
+                              <v-btn
+                                text="Так"
+                                @click="deleteItemFunc(item.title)"
+                              ></v-btn>
+                              <v-btn
+                                text="Ні"
+                                @click="trash_alert = false"
+                              ></v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
                       </div>
                     </td>
                   </tr>
@@ -105,11 +125,32 @@
                       <v-carousel-item
                         v-for="image in item.images"
                         :key="image.id"
-                        @click="deleteImageFunc(item.id, image.split('/').pop())"
+                        @click="trash_alert = true"
                         :src='image'
                         height="160"
                       >
                       <v-tooltip activator="parent" location="center">Видалити зображення</v-tooltip>
+
+                      <v-dialog width="400" v-model="trash_alert">
+                        <v-card>
+                          <v-card-text class="text-center">
+                            Ви впевнені, що бажаєте видалити це зображення?
+                          </v-card-text>
+
+                          <v-card-actions>
+                            <v-spacer></v-spacer>
+
+                            <v-btn
+                              text="Так"
+                              @click="deleteImageFunc(item.id, image.split('/').pop())"
+                            ></v-btn>
+                            <v-btn
+                              text="Ні"
+                              @click="trash_alert = false"
+                            ></v-btn>
+                          </v-card-actions>
+                        </v-card>
+                      </v-dialog>
                       </v-carousel-item>
                     </v-carousel>
                   </v-container>
@@ -217,7 +258,8 @@
         loginButton: {
           color: 'light'
         },
-        password: ''
+        password: '',
+        trash_alert: false
       }
     },
     mounted() {
@@ -272,13 +314,13 @@
         }
       },
 
-      async goodsFunc() {
+      async goodsFunc(page=null) {
         this.loader = true;
         var finished = false;
 
         try {
           this.items = [];
-          this.handleReset();
+          this.handleReset(page);
           const request = await this.goods();
           if(request['status'] === 200) {
             this.items = request['message'];
@@ -375,7 +417,7 @@
             }
 
             if(request['status'] === 200) {
-              this.goodsFunc();
+              this.goodsFunc(this.page);
             } else {
               toastr.error(request['message']);
               error_r = true;
@@ -396,11 +438,12 @@
       async deleteImageFunc(id, filename) {
         this.loader = true;
         var error_r = false;
+        this.trash_alert = false;
 
         try {
           const request = await this.deleteImage(id, filename);
           if(request['status'] === 200) {
-            this.goodsFunc();
+            this.goodsFunc(this.page);
           } else {
             toastr.error(request['message']);
             error_r = true;
@@ -416,6 +459,7 @@
       },
 
       async deleteItemFunc(title) {
+        this.trash_alert = false;
         this.loader = true;
         var error_r = false;
         try {

@@ -40,7 +40,8 @@
       <v-btn icon="mdi-cart-outline" @click="bucket = true; forBuying();"></v-btn>
       <v-dialog
         v-model="bucket"
-        width="500"
+        width="370"
+        persistent
       >
         <v-card>
           <v-toolbar
@@ -61,12 +62,12 @@
           <hr class="m-0 p-0" />
 
           <div v-if="goods && goods.length > 0">
-            <div class="d-flex align-center justify-center">
+            <div class="d-flex align-center justify-center v-table-block">
               <v-table>
                 <thead>
                   <tr>
                     <th class="text-center fw-bold">
-                      Назва товару
+                      Товар
                     </th>
                     <th class="text-center fw-bold">
                       Вартість
@@ -74,19 +75,22 @@
                     <th class="text-center fw-bold">
                       Кількість
                     </th>
-                    <th class="text-center fw-bold">
-                      Видалити
-                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="el in goods" :key="el.id">
-                    <td class="text-center">{{ el.title }}</td>
-                    <td class="text-center">{{ el.sum }}</td>
+                    <td class="text-center">
+                      <div class="d-flex align-center justify-center">
+                        <v-btn class="mx-1" width="30" height="30" color="pink" icon="cirlce" @click="deleteFromBucket(el.id)"><v-icon center icon="mdi-delete-forever"></v-icon>
+                          <v-tooltip activator="parent" location="left">Видалити</v-tooltip>
+                        </v-btn>
+                        <span class="mx-1">{{ el.title.length > 5 ? el.title.substr(0, 5) :  el.title}}<v-tooltip activator="parent" location="right">{{el.title}}</v-tooltip></span>
+                      </div>
+                    </td>
+                    <td class="text-center">₴ {{ el.sum }}</td>
                     <td class="text-center">
                       <input type="number" min="1" max="10" v-model="el.count" @change="newAmount(el.title, el.sum, el.count, el.oldSum)" class="border border-1 border-navy rounded-2 p-1" />
                     </td>
-                    <td class="text-center"><v-btn width="30" height="30" @click="deleteFromBucket(el.id)" icon="mdi-delete-forever"></v-btn></td>
                   </tr>
                 </tbody>
               </v-table>
@@ -94,12 +98,10 @@
 
             <hr class="m-0 p-0" />
 
-            <div class="container mx-2 my-4">
-              <div class="d-flex align-center justify-start">
-                <div>
-                  <p class="p-0 m-0"><span class="fw-bold">Загальна вартість покупки:</span> {{ totalAmount }}</p>
-                  <v-btn color="pink" class="mt-4" @click="nextStep">Продовжити оформлення</v-btn>
-                </div>
+            <div class="mx-2 my-3">
+              <div class="text-center">
+                <p class="p-0 m-0"><span class="fw-bold">Загальна вартість покупки:</span> {{ totalAmount }}</p>
+                <v-btn color="pink" class="mt-2" @click="nextStep">Продовжити оформлення</v-btn>
               </div>
             </div>
           </div>
@@ -114,7 +116,7 @@
 
       <v-dialog
         v-model="next"
-        width="500"
+        width="370"
       >
         <v-card>
           <v-toolbar
@@ -284,5 +286,7 @@
 </script>
 
 <style>
-    
+    .v-table__wrapper {
+      overflow-x: hidden !important;
+    }
 </style>

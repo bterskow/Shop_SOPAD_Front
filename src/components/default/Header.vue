@@ -45,7 +45,7 @@
         <v-card>
           <v-toolbar
             color="pink"
-            title="Корзина"
+            title="Кошик"
           >
             <v-card-actions class="justify-end">
               <v-btn

@@ -438,6 +438,7 @@
 
       logout(){
         localStorage.removeItem('admin');
+        this.password = '';
         this.auth = null;
       }
     },

@@ -61,21 +61,18 @@
                   :src="slider.first"
                   cover
                 >
-                  <v-tooltip activator="parent" location="center">Букети із мила можуть простояти кілька років</v-tooltip>
                 </v-carousel-item>
 
                 <v-carousel-item
                   :src="slider.second"
                   cover
                 >
-                  <v-tooltip activator="parent" location="center">Використовувати букет можно не тільки для декора, но і для прямого призначення</v-tooltip>
                 </v-carousel-item>
 
                 <v-carousel-item
                   :src="slider.third"
                   cover
                 >
-                  <v-tooltip activator="parent" location="center">За допомогою мила і прямих рук можливо створити будь-яку флористську задумку</v-tooltip>
                 </v-carousel-item>
               </v-carousel>
             </v-sheet>

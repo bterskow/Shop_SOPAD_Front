@@ -31,7 +31,7 @@
     },
     methods: {
       social(n) {
-        var socials = ['https://instagram.com', 'https://facebook.com', 'https://telegram.org'];
+        var socials = ['https://instagram.com/soapd_esire', 'https://facebook.com', 'https://telegram.org'];
         window.open(socials[n]);
       }
     }

@@ -142,7 +142,7 @@
     mixins: [goods],
     data() {
       return {
-        url: 'http://127.0.0.1:8000',
+        url: 'https://soapd-shop-api-587eaeba4c14.herokuapp.com',
         company: 'SOAPD_ESIRE',
         page: 1,
         slider: {

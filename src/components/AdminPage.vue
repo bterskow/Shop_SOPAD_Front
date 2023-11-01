@@ -202,7 +202,7 @@
     mixins: [login, goods],
     data() {
       return {
-        url: 'http://127.0.0.1:8000',
+        url: 'https://soapd-shop-api-587eaeba4c14.herokuapp.com',
         updateFormDialog: false,
         item: {
           id: null,

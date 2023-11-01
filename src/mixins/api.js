@@ -6,7 +6,7 @@ export default {
             headers: {
                 'Content-Type': 'application/json'
             }, 
-            url: 'http://127.0.0.1:8000'
+            url: 'https://soapd-shop-api-587eaeba4c14.herokuapp.com'
         }
     },
 

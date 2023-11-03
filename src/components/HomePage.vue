@@ -216,11 +216,12 @@
     },
     methods: {
       async goodsFunc(category=null) {
-        console.log(category)
+        var request_result = false;
         this.loader = true;
         this.items = [];
 
         try {
+          request_result = true;
           var request;
           if(category === null) {
             request = await this.goods();
@@ -229,7 +230,6 @@
           }
 
           if(request['status'] === 200) {
-            this.category = {s: 'Список категорій', v: null};
             this.items = request['message'];
             this.ifActive();
           } else {
@@ -240,6 +240,9 @@
         }
 
         this.loader = false;
+        if(request_result === false || category === null) {
+          this.category = {s: 'Список категорій', v: null};
+        }
       },
 
       toBucket(el) {

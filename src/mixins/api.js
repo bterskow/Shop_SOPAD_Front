@@ -22,9 +22,16 @@ export default {
             }
         },
 
-        async goods() {
+        async goods(category=null) {
             try {
-                const request = await axios.get(`${this.url}/goods`);
+                var request;
+
+                if(category !== null) {
+                    request = await axios.get(`${this.url}/goods/category/${category}`);
+                } else {
+                    request = await axios.get(`${this.url}/goods`);
+                }
+
                 const response = await request.data;
 
                 return response;
@@ -33,7 +40,7 @@ export default {
             }
         },
 
-        async addItem(title, sum, images) {
+        async addItem(title, description, category, sum, images) {
             try {
                 const h = this.headers;
                 const f = new FormData();
@@ -41,7 +48,7 @@ export default {
                     f.append('images', image);
                 }
 
-                const request = await axios.post(`${this.url}/goods/item/add?title=${title}&sum=${sum}`, f);
+                const request = await axios.post(`${this.url}/goods/item/add?title=${title}&description=${description}&category=${category}&sum=${sum}`, f);
                 const response = await request.data;
 
                 return response;
@@ -50,7 +57,7 @@ export default {
             }
         },
 
-        async updateItem(id, title, sum, images) {
+        async updateItem(id, title, description, category, sum, images) {
             try {
                 const h = this.headers;
                 var request;
@@ -61,9 +68,9 @@ export default {
                         f.append('images', image);
                     }
 
-                    request = await axios.put(`${this.url}/goods/update/item/${id}?new_title=${title}&new_fullsum=${sum}`, f);
+                    request = await axios.put(`${this.url}/goods/update/item/${id}?new_title=${title}&new_description=${description}&new_category=${category}&new_fullsum=${sum}`, f);
                 } else {
-                    request = await axios.put(`${this.url}/goods/update/item/${id}?new_title=${title}&new_fullsum=${sum}`);
+                    request = await axios.put(`${this.url}/goods/update/item/${id}?new_title=${title}&new_description=${description}&new_category=${category}&new_fullsum=${sum}`);
                 }
 
                 const response = await request.data;

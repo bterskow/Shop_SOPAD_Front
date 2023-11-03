@@ -157,17 +157,39 @@
 
                   <form enctype="multipart/form-data">
                     <v-text-field
+                      class="mb-3"
                       type="text"
                       v-model="item.title"
                       label="Назва товару *"
                     ></v-text-field>
 
                     <v-text-field
+                      class="mb-3"
                       type="number"
                       min="0"
                       v-model="item.sum"
                       label="Вартість товару *"
                     ></v-text-field>
+
+                    <v-textarea
+                      class="mb-3"
+                      v-model="item.description"
+                      label="Опис товару *"
+                      no-resize
+                      rows="1"
+                    ></v-textarea>
+
+                    <v-select
+                      class="mb-3"
+                      v-model='item.category'
+                      label="Вибреіть категорію товару *"
+                      :items="item.categories_list"
+                      item-title="s"
+                      item-value="v"
+                      persistent-hint
+                      return-object
+                      single-line
+                    ></v-select>
 
                     <label for="images-modal">Зображення для товару (jpg, png)</label>
                     <div>
@@ -184,22 +206,44 @@
               <v-pagination v-model="page" :length="items.length" class="mt-5"></v-pagination>
           </div>
 
-          <div class="d-flex align-center justify-center h-50 create-block">
-            <div class="mx-5 my-5 col-lg-6 shadow-lg p-3">
+          <div class="d-flex m-4 align-center justify-center h-50 create-block">
+            <div class="mx-5 col-lg-8 col-md-10 col-sm-10 shadow-lg p-3">
                 <h2 class="text-body-emphasis text-center mb-3">Додати новий товар</h2>
                 <form enctype="multipart/form-data">
                   <v-text-field
+                    class="mb-3"
                     type="text"
                     v-model="item.title"
                     label="Назва товару *"
                   ></v-text-field>
 
                   <v-text-field
+                    class="mb-3"
                     type="number"
                     min="0"
                     v-model="item.sum"
                     label="Вартість товару *"
                   ></v-text-field>
+
+                  <v-textarea
+                    class="mb-3"
+                    v-model="item.description"
+                    label="Опис товару *"
+                    no-resize
+                    rows="1"
+                  ></v-textarea>
+
+                  <v-select
+                    class="mb-3"
+                    v-model='item.category'
+                    label="Вибреіть категорію товару *"
+                    :items="item.categories_list"
+                    item-title="s"
+                    :item-value="v"
+                    persistent-hint
+                    return-object
+                    single-line
+                  ></v-select>
 
                   <label for="images">Зображення для товару (jpg, png) *</label>
                   <div>
@@ -229,18 +273,19 @@
 
 <script>
   import $ from 'jquery';
-  import login from '../mixins/api.js';
-  import goods from '../mixins/api.js';
-  import addItem from '../mixins/api.js';
-  import updateItem from '../mixins/api.js';
-  import deleteImage from '../mixins/api.js';
-  import deleteItem from '../mixins/api.js';
+  import login from '@/mixins/api.js';
+  import goods from '@/mixins/api.js';
+  import addItem from '@/mixins/api.js';
+  import updateItem from '@/mixins/api.js';
+  import deleteImage from '@/mixins/api.js';
+  import deleteItem from '@/mixins/api.js';
   import toastr from 'toastr';
   import 'toastr/toastr.scss';
+  import categories_list from '@/mixins/categories.js';
 
   export default {
     name: 'Admin',
-    mixins: [login, goods],
+    mixins: [login, goods, addItem, updateItem, deleteImage, deleteItem, categories_list],
     data() {
       return {
         url: 'https://soapd-shop-api-587eaeba4c14.herokuapp.com',
@@ -248,8 +293,11 @@
         item: {
           id: null,
           title: '',
+          description: '',
+          category: {s: 'Список категорій', v: ''},
           sum: '',
-          images: null
+          images: null,
+          categories_list: null
         },
         page: 1,
         items: [],
@@ -274,6 +322,7 @@
       };
 
       if(this.auth !== null) {
+        this.item.categories_list = this.categories_list();
         this.goodsFunc();
       }
     },
@@ -324,24 +373,21 @@
           const request = await this.goods();
           if(request['status'] === 200) {
             this.items = request['message'];
-            finished = true;
           } else {
-            toastr.error(request['message'])
-            finished = true;
+            toastr.error(request['message']);
           }
         } catch(error) {
           toastr.error('Упс, щось не так з роботою сервера. Спробуйте пізніше!')
-          finished = true;
         }
 
-        if(finished === true) {
-          this.loader = false;
-        }
+        this.loader = false;
       },
 
       handleReset(page=null) {
         this.item.id = null;
         this.item.title = '';
+        this.item.description = '';
+        this.item.category = {s: 'Список категорій', v: ''};
         this.item.sum = '';
         this.updateFormDialog = false;
 
@@ -362,20 +408,18 @@
         var images = document.querySelector('.images');
         var error_r = false;
 
-        if(this.item.title.replaceAll(' ', '').length !== 0 && this.item.sum.length !== 0 && images.files.length > 0) {
+        if(this.item.title.replaceAll(' ', '').length !== 0 && this.item.description.replaceAll(' ', '').length !== 0 && this.item.category.v !== '' && this.item.sum.length !== 0 && images.files.length > 0) {
           this.loader = true;
           try {
-            const request = await this.addItem(this.item.title, this.item.sum, images.files);
+            const request = await this.addItem(this.item.title, this.item.description, this.item.category.v, this.item.sum, images.files);
             if(request['status'] === 200) {
               this.goodsFunc();
             } else {
               toastr.error(request['message'])
-              this.loader = false;
               error_r = true;
             }
           } catch(error) {
-            toastr.error('Упс, щось не так з роботою сервера. Спробуйте пізніше!')
-            this.loader = false;
+            toastr.error('Упс, щось не так з роботою сервера. Спробуйте пізніше!');
             error_r = true;
           }
         } else {
@@ -388,7 +432,14 @@
       },
 
       updateForm(item) {
+        this.item.categories_list.forEach((c) => {
+          if(c.v == item.category) {
+            this.item.category = c;
+          }
+        })
+
         this.item.title = item.title;
+        this.item.description = item.description;
         this.item.sum = item.sum;
         this.item.id = item.title;
         this.updateFormDialog = true;
@@ -406,14 +457,14 @@
         var images = document.querySelector('.images-modal');
         var error_r = false;
         
-        if(this.item.title.replaceAll(' ', '').length !== 0 && this.item.sum.length !== 0) {
+        if(this.item.title.replaceAll(' ', '').length !== 0 && this.item.sum.length !== 0 && this.item.description.replaceAll(' ', '').length !== 0 && this.item.category.v !== '') {
           this.loader = true;
           try {
             var request;
             if(images.files.length > 0) {
-              request = await this.updateItem(this.item.id, this.item.title, this.item.sum, images.files);
+              request = await this.updateItem(this.item.id, this.item.title, this.item.description, this.item.category.v, this.item.sum, images.files);
             } else {
-              request = await this.updateItem(this.item.id, this.item.title, this.item.sum, null);
+              request = await this.updateItem(this.item.id, this.item.title, this.item.description, this.item.category.v, this.item.sum, null);
             }
 
             if(request['status'] === 200) {
@@ -505,6 +556,6 @@
   }
 
   .create-block {
-    min-height: 494px !important;
+    min-height: 520px !important;
   }
 </style>

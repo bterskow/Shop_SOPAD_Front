@@ -1,23 +1,6 @@
 <template>
   <v-app-bar color="pink" density="compact">
-    <template v-slot:prepend>
-      <v-menu>
-        <template v-slot:activator="{ props }">
-          <v-app-bar-nav-icon v-bind="props"></v-app-bar-nav-icon>
-        </template>
-
-        <v-list>
-          <v-list-item
-            v-for="(item, i) in menu"
-            :key="i"
-          >
-            <v-list-item-title><a href="#goods" class="text-dark text-center fw-bold">{{ item.title }}</a></v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </template>
-
-    <v-app-bar-title class="fw-bold">{{ company }}</v-app-bar-title>
+    <v-app-bar-title class="fw-bold"><a onclick="window.location.reload();" class="company-name text-white text-decoration-none">{{ company }}</a></v-app-bar-title>
 
     <v-layout class="d-none d-md-flex">
       <v-btn @click="social(0)">
@@ -84,10 +67,10 @@
                         <v-btn class="mx-1" width="30" height="30" color="pink" icon="cirlce" @click="deleteFromBucket(el.id)"><v-icon center icon="mdi-delete-forever"></v-icon>
                           <v-tooltip activator="parent" location="left">Видалити</v-tooltip>
                         </v-btn>
-                        <span class="mx-1">{{ el.title.length > 5 ? el.title.substr(0, 5) :  el.title}}<v-tooltip activator="parent" location="right">{{el.title}}</v-tooltip></span>
+                        <span class="mx-1">{{ el.title.length > 5 ? el.title.substr(0, 5) + '...' :  el.title}}<v-tooltip activator="parent" location="right">{{el.title}}</v-tooltip></span>
                       </div>
                     </td>
-                    <td class="text-center">₴ {{ el.sum }}</td>
+                    <td class="text-center">{{ el.sum }} ₴</td>
                     <td class="text-center">
                       <input type="number" min="1" max="10" v-model="el.count" @change="newAmount(el.title, el.sum, el.count, el.oldSum)" class="border border-1 border-navy rounded-2 p-1" />
                     </td>
@@ -165,6 +148,7 @@
       company: String,
       allGoods: Array,
       ifActive: Function,
+      categories_list: Array
     },
     data() {
       return {
@@ -175,9 +159,6 @@
         phone: '',
         loading: false,
         disabled: false,
-        menu: [
-          {title: 'До букетів'},
-        ]
       }
     },
     methods: {
@@ -288,5 +269,13 @@
 <style>
     .v-table__wrapper {
       overflow-x: hidden !important;
+    }
+
+    .menu-items, .company-name {
+      cursor: pointer;
+    }
+
+    .menu-items:hover {
+      color: orange;
     }
 </style>

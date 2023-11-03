@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <Header :company="company" :allGoods="items" :ifActive="ifActive" />
+    <Header :company="company" :allGoods="items" :ifActive="ifActive" :categories_list="categories" />
 
     <v-main>
       <div v-if="loader === true" class="loader h-100 d-flex align-items-center justify-content-center">
@@ -53,7 +53,7 @@
           </v-dialog>
         </div>
 
-        <div class="row shadow border-bottom border-2 border-black">
+        <div class="row shadow border-bottom border-1 border-grey">
           <div class="pa-0 col-md-6 border-right border-2 border-black">
             <v-sheet>
               <v-carousel show-arrows="hover" hide-delimiters cycle>
@@ -84,7 +84,35 @@
           </div>
         </div>
 
-        <div id="goods" class="goods container mt-4">
+        <div class="actions border-bottom border-end p-3 shadow">
+          <div class="d-flex flex-column flex-sm-row w-100 gap-2">
+            <v-select
+              class=""
+              v-model='category'
+              label="Вибреіть категорію"
+              :items="categories"
+              item-title="s"
+              item-value="v"
+              persistent-hint
+              return-object
+              single-line
+            ></v-select>
+            <v-btn height="56" @click.prevent="goodsFunc(category.v)">
+              <v-icon
+                size="large"
+                icon="mdi-magnify"
+              ></v-icon>
+            </v-btn>
+            <v-btn height="56" @click.prevent="goodsFunc(null)">
+              <v-icon
+                size="large"
+                icon="mdi-close-circle-outline"
+              ></v-icon>
+            </v-btn>
+          </div>
+        </div>
+
+        <div id="goods" class="goods container mt-5">
           <div class="row text-center">
             <div class="col-lg-4" v-for="el in items[page - 1]" :key="el.id">
               <div v-if="el.title">
@@ -93,9 +121,13 @@
                     <h4 class="my-0 fw-normal">{{ el.title }}</h4>
                   </div> -->
                   <div class="card-body">
-                    <p class="card-title pricing-card-title border-bottom m-0 p-0 fw-bold">₴ {{ el.sum }}</p>
+                    <div class="header border-bottom d-block"><h4 class="card-title pricing-card-title">{{ el.title }}</h4> <span>({{ el.sum }} ₴)</span></div>
                     <v-sheet class="my-4">
-                      <v-carousel show-arrows="hover" hide-delimiters cycle>
+                      <div class="item-description">
+                        {{ el.description.length > 42 ? el.description.substr(0, 29) + '...' : el.description}}
+                        <v-tooltip activator="parent" width="300" location="bottom">{{ el.description }}</v-tooltip>
+                      </div>
+                      <v-carousel show-arrows="hover" class="p-0 m-0" hide-delimiters height="375">
                         <v-carousel-item
                           v-for="image in el.images.split(', ')"
                           :src="`${url}/goods/image/${image}`"
@@ -115,7 +147,7 @@
       </div>
     </v-main>
 
-    <Footer :company="company" />
+    <Footer :company="company" class="border-top" />
   </v-app>
 </template>
 
@@ -126,17 +158,18 @@
   import FirstSliderImage from '@/assets/slider_images/first_slider_image.jpg';
   import SecondSliderImage from '@/assets/slider_images/second_slider_image.jpg';
   import ThirdSliderImage from '@/assets/slider_images/third_slider_image.jpg';
-  import goods from '../mixins/api.js';
-  import notification from '../mixins/api.js';
+  import goods from '@/mixins/api.js';
+  import notification from '@/mixins/api.js';
   import toastr from 'toastr';
   import 'toastr/toastr.scss';
+  import categories_list from '@/mixins/categories.js';
 
   export default {
     name: 'Home',
     components: {
       Header, Footer, CallbackForm
     },
-    mixins: [goods],
+    mixins: [goods, notification, categories_list],
     data() {
       return {
         url: 'https://soapd-shop-api-587eaeba4c14.herokuapp.com',
@@ -160,8 +193,13 @@
           disabled: false,
           loading: false
         },
-        loader: false
+        loader: false,
+        category: {s: 'Список категорій', v: null},
+        categories: null
       }
+    },
+    created() {
+      this.categories = this.categories_list();
     },
     mounted() {
       toastr.options = {
@@ -177,28 +215,31 @@
       this.ifActive();
     },
     methods: {
-      async goodsFunc() {
+      async goodsFunc(category=null) {
+        console.log(category)
         this.loader = true;
-        var finished = false;
+        this.items = [];
 
         try {
-          const request = await this.goods();
+          var request;
+          if(category === null) {
+            request = await this.goods();
+          } else {
+            request = await this.goods(category);
+          }
+
           if(request['status'] === 200) {
+            this.category = {s: 'Список категорій', v: null};
             this.items = request['message'];
             this.ifActive();
-            finished = true;
           } else {
             toastr.error(request['message'])
-            finished = true;
           }
         } catch(error) {
           toastr.error('Упс, щось не так з роботою сервера. Спробуйте пізніше!')
-          finished = true;
         }
 
-        if(finished === true) {
-          this.loader = false;
-        }
+        this.loader = false;
       },
 
       toBucket(el) {
@@ -344,5 +385,13 @@
 
   .dropdown {
     z-index: 2;
+  }
+
+  .item-description {
+    cursor: pointer;
+  }
+
+  .v-input__details {
+    display: none;
   }
 </style>

@@ -15,9 +15,11 @@ import { registerPlugins } from '@/plugins'
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import store from './stores/index.js';
 
 const app = createApp(App)
 
 registerPlugins(app)
 
-app.mount('#app')
+app.mount('#app');
+app.use(store);

@@ -1,24 +1,28 @@
 <template>
   <v-form fast-fail class="pa-5">
     <v-text-field
+      class="mb-3"
       type="text"
       v-model="callback.fullname"
       label="Ім'я"
     ></v-text-field>
 
     <v-text-field
+      class="mb-3"
       type="email"
       v-model="callback.email"
       label="Пошта"
     ></v-text-field>
 
     <v-text-field
+      class="mb-3"
       type="tel"
       v-model="callback.phone"
       label="Номер телефону"
     ></v-text-field>
 
     <v-textarea
+      class="mb-3"
       v-model="callback.comment"
       rows="3"
       label="Повідомлення"

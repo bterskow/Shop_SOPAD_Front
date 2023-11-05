@@ -182,13 +182,26 @@
                     <v-select
                       class="mb-3"
                       v-model='item.category'
-                      label="Вибреіть категорію товару *"
-                      :items="item.categories_list"
+                      label="Виберіть категорію товару *"
+                      :items="item.categories_list['main_categories']"
                       item-title="s"
                       item-value="v"
                       persistent-hint
                       return-object
                       single-line
+                    ></v-select>
+
+                    <v-select
+                      class="mb-3"
+                      v-model='item.subcategory'
+                      label="Виберіть підкатегорію"
+                      :items='item.categories_list[item.category.subtitle]'
+                      item-title="s"
+                      item-value="v"
+                      persistent-hint
+                      return-object
+                      single-line
+                      no-data-text="(Порожньо)"
                     ></v-select>
 
                     <label for="images-modal">Зображення для товару (jpg, png)</label>
@@ -198,7 +211,7 @@
                   </form>
                   <div>
                     <v-btn class="my-2" color="success" block @click="updateItemFunc(item.id)">Оновити</v-btn>
-                    <v-btn class="" color="danger" block @click="updateFormDialogClose">Закрити модалку</v-btn>
+                    <v-btn class="text-white" color="danger" block @click="updateFormDialogClose">Закрити модалку</v-btn>
                   </div>
                 </v-card>
               </v-dialog>
@@ -236,13 +249,26 @@
                   <v-select
                     class="mb-3"
                     v-model='item.category'
-                    label="Вибреіть категорію товару *"
-                    :items="item.categories_list"
+                    label="Виберіть категорію товару *"
+                    :items="item.categories_list['main_categories']"
                     item-title="s"
                     :item-value="v"
                     persistent-hint
                     return-object
                     single-line
+                  ></v-select>
+
+                  <v-select
+                    class="mb-3"
+                    v-model='item.subcategory'
+                    label="Виберіть підкатегорію"
+                    :items='item.categories_list[item.category.subtitle]'
+                    item-title="s"
+                    item-value="v"
+                    persistent-hint
+                    return-object
+                    single-line
+                    no-data-text="(Порожньо)"
                   ></v-select>
 
                   <label for="images">Зображення для товару (jpg, png) *</label>
@@ -288,13 +314,14 @@
     mixins: [login, goods, addItem, updateItem, deleteImage, deleteItem, categories_list],
     data() {
       return {
-        url: 'https://soapd-shop-api-587eaeba4c14.herokuapp.com',
+        url: this.$store.getters.getUrl,
         updateFormDialog: false,
         item: {
           id: null,
           title: '',
           description: '',
-          category: {s: 'Список категорій', v: ''},
+          category: {s: 'Виберіть категорію *', v: null},
+          subcategory: {s: 'Виберіть підкатегорію', v: null},
           sum: '',
           images: null,
           categories_list: null
@@ -310,6 +337,7 @@
         trash_alert: false
       }
     },
+
     mounted() {
       this.auth = localStorage.getItem('admin');
 
@@ -387,7 +415,8 @@
         this.item.id = null;
         this.item.title = '';
         this.item.description = '';
-        this.item.category = {s: 'Список категорій', v: ''};
+        this.item.category = {s: 'Виберіть категорію *', v: null};
+        this.item.subcategory = {s: 'Виберіть підкатегорію', v: null};
         this.item.sum = '';
         this.updateFormDialog = false;
 
@@ -408,10 +437,10 @@
         var images = document.querySelector('.images');
         var error_r = false;
 
-        if(this.item.title.replaceAll(' ', '').length !== 0 && this.item.description.replaceAll(' ', '').length !== 0 && this.item.category.v !== '' && this.item.sum.length !== 0 && images.files.length > 0) {
+        if(this.item.title.replaceAll(' ', '').length !== 0 && this.item.description.replaceAll(' ', '').length !== 0 && this.item.category.v !== null && this.item.sum.length !== 0 && images.files.length > 0) {
           this.loader = true;
           try {
-            const request = await this.addItem(this.item.title, this.item.description, this.item.category.v, this.item.sum, images.files);
+            const request = await this.addItem(this.item.title, this.item.description, this.item.category.v, this.item.subcategory.v, this.item.sum, images.files);
             if(request['status'] === 200) {
               this.goodsFunc();
             } else {
@@ -432,11 +461,19 @@
       },
 
       updateForm(item) {
-        this.item.categories_list.forEach((c) => {
+        this.item.categories_list['main_categories'].forEach((c) => {
           if(c.v == item.category) {
             this.item.category = c;
           }
         })
+
+        if(this.item.category.subtitle) {
+          this.item.categories_list[this.item.category.subtitle].forEach((s) => {
+            if(s.v == item.subcategory) {
+              this.item.subcategory = s;
+            }
+          })
+        }
 
         this.item.title = item.title;
         this.item.description = item.description;
@@ -457,14 +494,14 @@
         var images = document.querySelector('.images-modal');
         var error_r = false;
         
-        if(this.item.title.replaceAll(' ', '').length !== 0 && this.item.sum.length !== 0 && this.item.description.replaceAll(' ', '').length !== 0 && this.item.category.v !== '') {
+        if(this.item.title.replaceAll(' ', '').length !== 0 && this.item.sum.length !== 0 && this.item.description.replaceAll(' ', '').length !== 0 && this.item.category.v !== null) {
           this.loader = true;
           try {
             var request;
             if(images.files.length > 0) {
-              request = await this.updateItem(this.item.id, this.item.title, this.item.description, this.item.category.v, this.item.sum, images.files);
+              request = await this.updateItem(this.item.id, this.item.title, this.item.description, this.item.category.v, this.item.subcategory.v, this.item.sum, images.files);
             } else {
-              request = await this.updateItem(this.item.id, this.item.title, this.item.description, this.item.category.v, this.item.sum, null);
+              request = await this.updateItem(this.item.id, this.item.title, this.item.description, this.item.category.v, this.item.subcategory.v, this.item.sum, null);
             }
 
             if(request['status'] === 200) {
@@ -556,6 +593,6 @@
   }
 
   .create-block {
-    min-height: 520px !important;
+    min-height: 565px !important;
   }
 </style>

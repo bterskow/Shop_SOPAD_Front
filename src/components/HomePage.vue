@@ -86,18 +86,32 @@
 
         <div class="actions border-bottom border-end p-3 shadow">
           <div class="d-flex flex-column flex-sm-row w-100 gap-2">
-            <v-select
-              class=""
-              v-model='category'
-              label="Вибреіть категорію"
-              :items="categories"
-              item-title="s"
-              item-value="v"
-              persistent-hint
-              return-object
-              single-line
-            ></v-select>
-            <v-btn height="56" @click.prevent="goodsFunc(category.v)">
+            <div class="d-flex flex-column flex-sm-row w-100 gap-2">
+              <v-select
+                @click="resetSubcategory"
+                class=""
+                v-model='category'
+                label="Виберіть категорію"
+                :items="categories['main_categories']"
+                item-title="s"
+                item-value="v"
+                persistent-hint
+                return-object
+                single-line
+              ></v-select>
+              <v-select
+                v-model='subcategory'
+                label="Виберіть підкатегорію"
+                :items='categories[category.subtitle]'
+                item-title="s"
+                item-value="v"
+                persistent-hint
+                return-object
+                single-line
+                no-data-text="(Порожньо)"
+              ></v-select>
+            </div>
+            <v-btn height="56" @click.prevent="goodsFunc(category.v, subcategory.v)">
               <v-icon
                 size="large"
                 icon="mdi-magnify"
@@ -172,7 +186,7 @@
     mixins: [goods, notification, categories_list],
     data() {
       return {
-        url: 'https://soapd-shop-api-587eaeba4c14.herokuapp.com',
+        url: this.$store.getters.getUrl,
         company: 'SOAPD_ESIRE',
         page: 1,
         slider: {
@@ -195,6 +209,7 @@
         },
         loader: false,
         category: {s: 'Список категорій', v: null},
+        subcategory: {s: 'Список підкатегорій', v: null},
         categories: null
       }
     },
@@ -215,19 +230,16 @@
       this.ifActive();
     },
     methods: {
-      async goodsFunc(category=null) {
-        var request_result = false;
+      resetSubcategory() {
+        this.subcategory = {s: 'Список підкатегорій', v: null}
+      },
+
+      async goodsFunc(category=null, subcategory=null) {
         this.loader = true;
         this.items = [];
 
         try {
-          request_result = true;
-          var request;
-          if(category === null) {
-            request = await this.goods();
-          } else {
-            request = await this.goods(category);
-          }
+          const request = await this.goods(category, subcategory);
 
           if(request['status'] === 200) {
             this.items = request['message'];
@@ -240,8 +252,9 @@
         }
 
         this.loader = false;
-        if(request_result === false || category === null) {
+        if(category === null && subcategory === null) {
           this.category = {s: 'Список категорій', v: null};
+          this.resetSubcategory();
         }
       },
 

@@ -6,11 +6,15 @@ export default {
             headers: {
                 'Content-Type': 'application/json'
             }, 
-            url: 'https://soapd-shop-api-587eaeba4c14.herokuapp.com'
+            url: this.$store.getters.getUrl
         }
     },
 
     methods: {
+        api() {
+            return this.url;
+        },
+
         async login(password) {
             try {
                 const request = await axios.get(`${this.url}/admin?password=${password}`);
@@ -22,12 +26,15 @@ export default {
             }
         },
 
-        async goods(category=null) {
+        async goods(category=null, subcategory=null) {
             try {
                 var request;
-
                 if(category !== null) {
-                    request = await axios.get(`${this.url}/goods/category/${category}`);
+                    if(subcategory !== null) {
+                        request = await axios.get(`${this.url}/goods?category=${category}&subcategory=${subcategory}`);
+                    } else {
+                        request = await axios.get(`${this.url}/goods?category=${category}`);
+                    }
                 } else {
                     request = await axios.get(`${this.url}/goods`);
                 }
@@ -40,7 +47,7 @@ export default {
             }
         },
 
-        async addItem(title, description, category, sum, images) {
+        async addItem(title, description, category, subcategory, sum, images) {
             try {
                 const h = this.headers;
                 const f = new FormData();
@@ -48,7 +55,13 @@ export default {
                     f.append('images', image);
                 }
 
-                const request = await axios.post(`${this.url}/goods/item/add?title=${title}&description=${description}&category=${category}&sum=${sum}`, f);
+                var request;
+                if(subcategory !== null) {
+                    request = await axios.post(`${this.url}/goods/item/add?title=${title}&description=${description}&category=${category}&sum=${sum}&subcategory=${subcategory}`, f);
+                } else {
+                    request = await axios.post(`${this.url}/goods/item/add?title=${title}&description=${description}&category=${category}&sum=${sum}`, f);
+                }
+
                 const response = await request.data;
 
                 return response;
@@ -57,7 +70,7 @@ export default {
             }
         },
 
-        async updateItem(id, title, description, category, sum, images) {
+        async updateItem(id, title, description, category, subcategory, sum, images) {
             try {
                 const h = this.headers;
                 var request;
@@ -68,9 +81,17 @@ export default {
                         f.append('images', image);
                     }
 
-                    request = await axios.put(`${this.url}/goods/update/item/${id}?new_title=${title}&new_description=${description}&new_category=${category}&new_fullsum=${sum}`, f);
+                    if(subcategory !== null) {
+                        request = await axios.put(`${this.url}/goods/update/item/${id}?new_title=${title}&new_description=${description}&new_category=${category}&new_subcategory=${subcategory}&new_fullsum=${sum}`, f);
+                    } else {
+                        request = await axios.put(`${this.url}/goods/update/item/${id}?new_title=${title}&new_description=${description}&new_category=${category}&new_fullsum=${sum}`, f);
+                    }   
                 } else {
-                    request = await axios.put(`${this.url}/goods/update/item/${id}?new_title=${title}&new_description=${description}&new_category=${category}&new_fullsum=${sum}`);
+                    if(subcategory !== null) {
+                        request = await axios.put(`${this.url}/goods/update/item/${id}?new_title=${title}&new_description=${description}&new_category=${category}&new_subcategory=${subcategory}&new_fullsum=${sum}`);
+                    } else {
+                        request = await axios.put(`${this.url}/goods/update/item/${id}?new_title=${title}&new_description=${description}&new_category=${category}&new_fullsum=${sum}`);
+                    }  
                 }
 
                 const response = await request.data;

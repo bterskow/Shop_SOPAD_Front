@@ -10,12 +10,11 @@ export default {
           { s: 'Осінь', v: 5, subtitle: 'subcategories_fifth'},
           { s: 'Чоловікам', v: 6, subtitle: 'subcategories_sixth'},
           { s: 'Тваринки', v: 7, subtitle: 'subcategories_seventh'},
-          { s: 'Їстівне', v: 8},
-          { s: 'Не їстівне', v: 9},
-          { s: 'Крафтове натуральне мило', v: 10},
-          { s: 'Свічки ручної роботи', v: 12},
-          { s: 'Гіпсові розмальовки ЗД', v: 13},
-          { s: 'Супутні товари', v: 14, subtitle: 'subcategories_eighth'}
+          { s: 'Їстівне? Не їстівне', v: 8},
+          { s: 'Крафтове натуральне мило', v: 9},
+          { s: 'Свічки ручної роботи', v: 10},
+          { s: 'Гіпсові розмальовки ЗД', v: 11},
+          { s: 'Супутні товари', v: 12, subtitle: 'subcategories_eighth'}
         ],
         subcategories_first: [
           {s: 'Троянди, орхідеї', v: 0},
